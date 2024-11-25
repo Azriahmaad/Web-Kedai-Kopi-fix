@@ -111,26 +111,6 @@ checkoutbButton.addEventListener('click', async function (e) {
 
 });
 
-// after transaction
-window.snap.pay(token , {
-    onSuccess: function(result){
-      /* You may add your own implementation here */
-      alert("payment success!"); console.log(result);
-    },
-    onPending: function(result){
-      /* You may add your own implementation here */
-      alert("wating your payment!"); console.log(result);
-    },
-    onError: function(result){
-      /* You may add your own implementation here */
-      alert("payment failed!"); console.log(result);
-    },
-    onClose: function(){
-      /* You may add your own implementation here */
-      alert('you closed the popup without finishing the payment');
-    }
-  })
-
 // format pesan whatsapp
 const formatMessage = (obj) => {
     return `Data Customer
