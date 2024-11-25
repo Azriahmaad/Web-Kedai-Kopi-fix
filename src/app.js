@@ -66,6 +66,83 @@ document.addEventListener('alpine:init', () => {
     });
 });
 
+// form validation
+const checkoutbButton = document.querySelector('.checkout-button');
+checkoutbButton.disabled = true;
+
+const form = document.querySelector('#checkoutForm');
+form.addEventListener('keyup', function () {
+    for (let i = 0; i < form.elements.length; i++) {
+        if( form.elements[i].value.length !== 0) {
+            checkoutbButton.classList.remove('disabled');
+            checkoutbButton.classList.add('disabled');
+        } else {
+            return false;
+        }
+    }
+    checkoutbButton.disabled = false;
+    checkoutbButton.classList.remove('disabled');
+});
+
+// kirim data ketika checkout button diklik
+checkoutbButton.addEventListener('click', async function (e) {
+    e.preventDefault();
+    const formData = new FormData(form);
+    const data = new URLSearchParams(formData);
+    const objData = Object.fromEntries(data);
+    // ini manual yang makan tetuju whatsapp yang tertera lalu kita bikin sendiri payment linknya
+    // const message = formatMessage(objData);
+    // window.open('http://wa.me/087795484882?text=' + encodeURIComponent(message));
+    // console.log(objData);
+
+    
+    // minta transaction token menggunakan ajax / fetch
+    try{
+        const response = await fetch('php/placeOrder.php', {
+            method: 'POST',
+            body: data,
+        });
+        const token = await response.text();
+        // console.log(token);
+        window.snap.pay(token);
+    } catch(err) {
+        console.log(err.message);
+    }
+
+});
+
+// after transaction
+window.snap.pay(token , {
+    onSuccess: function(result){
+      /* You may add your own implementation here */
+      alert("payment success!"); console.log(result);
+    },
+    onPending: function(result){
+      /* You may add your own implementation here */
+      alert("wating your payment!"); console.log(result);
+    },
+    onError: function(result){
+      /* You may add your own implementation here */
+      alert("payment failed!"); console.log(result);
+    },
+    onClose: function(){
+      /* You may add your own implementation here */
+      alert('you closed the popup without finishing the payment');
+    }
+  })
+
+// format pesan whatsapp
+const formatMessage = (obj) => {
+    return `Data Customer
+    Nama: ${obj.name}
+    Email: ${obj.email}
+    No Hp: ${obj.phone}
+    Data pesanan
+    ${JSON.parse(obj.items).map((item) => `${item.name} (${item.quantity} x ${rupiah(item.total)})\n`)}
+    TOTAL: ${rupiah(obj.total)}
+    Terima kasih.`;
+};
+
 
 // Konversi ke rupiah
 const rupiah = (number) => {
